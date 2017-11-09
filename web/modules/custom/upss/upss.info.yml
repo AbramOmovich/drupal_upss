@@ -1,0 +1,4 @@
+type: module
+name: UPSS
+description: 'UPSS demonstration'
+core: 8.x

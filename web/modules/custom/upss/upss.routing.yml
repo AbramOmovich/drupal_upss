@@ -1,0 +1,22 @@
+upss.main_page:
+  path: '/upss'
+  defaults:
+    _form: 'Drupal\upss\Form\UpssFileUploadForm'
+    _title: 'Upss form page'
+  requirements:
+    _permission: 'access content'
+upss.preferences:
+  path: '/upss/preferences'
+  defaults:
+    _controller: '\Drupal\upss\Controller\UpssPageController::set_preferences'
+    _title: 'Upss preferences settings page'
+  requirements:
+    _permission: 'access content'
+
+upss.onliner:
+  path: '/upss/onliner'
+  defaults:
+    _controller: '\Drupal\upss\Controller\UpssPageController::onliner'
+    _title: 'Onliner mobile catalog'
+  requirements:
+    _permission: 'access content'

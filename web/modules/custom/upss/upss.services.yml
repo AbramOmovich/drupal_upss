@@ -1,0 +1,5 @@
+services:
+  upss.upss:
+    class: Drupal\upss\UpssService
+  upss.phone_catalog:
+    class: Drupal\upss\UpssPhoneCatalog

@@ -1,0 +1,10 @@
+upss.main:
+  title: 'Upss main page'
+  description: 'Upss main page.'
+  route_name: upss.main_page
+  menu_name: main
+upss.onliner:
+  title: 'Onliner mobile catalog page'
+  description: 'Onliner mobile catalog page'
+  route_name: upss.onliner
+  menu_name: main
