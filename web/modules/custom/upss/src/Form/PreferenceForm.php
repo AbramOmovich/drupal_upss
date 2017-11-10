@@ -27,11 +27,25 @@ class PreferenceForm extends FormBase {
    *
    * @param array|null $preferences
    *
+   * @param array|null $initial_preferences
+   *
    * @return array The form structure.
    * The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, array $preferences = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, array $preferences = NULL, array $initial_preferences = NULL) {
     $form = [];
+
+    $selected = [];
+    if (!empty($preferences['preferences'])){
+      $selected = array_keys($preferences['preferences']);
+    }
+
+    $form['properties_shown'] = [
+      '#type' => 'checkboxes',
+      '#options' => $initial_preferences,
+      '#title' => $this->t('Select properties to set settings'),
+      '#default_value' => $selected,
+    ];
 
     $form['collection_id'] =[
       '#type' => 'hidden',
@@ -45,16 +59,6 @@ class PreferenceForm extends FormBase {
       $form['preferences'][$preference] = [
         '#type' => 'fieldset',
         '#title' => ucfirst($preference),
-      ];
-
-      $form['preferences'][$preference][$preference . '_|_' . 'display'] = [
-        '#type' => 'select',
-        '#title' => $this->t('Display this property'),
-        '#options' => [
-          'y' => $this->t('Yes'),
-          'n' => $this->t('No'),
-
-        ],
       ];
 
       $form['preferences'][$preference][$preference . '_|_' .'weight'] = [
@@ -110,11 +114,19 @@ class PreferenceForm extends FormBase {
     $user_preferences = [];
 
     $preferences = $form_state->getUserInput();
+
+    //filter shown properties
+    $preferences['properties_shown'] = array_filter($preferences['properties_shown'], function ($prop){
+      return !is_null($prop);
+    });
+    $properties_shown = $preferences['properties_shown'];
+
     $user_preferences['entities_id'] = $preferences['collection_id'];
     unset($preferences['collection_id']);
 
     $names = unserialize( $preferences['names']);
 
+    //leave only settings in form input
     $preferences = array_filter($preferences, function ($element){
       if (preg_match('@_\|_@', $element)){
         return TRUE;
@@ -123,10 +135,10 @@ class PreferenceForm extends FormBase {
       }
     }, ARRAY_FILTER_USE_KEY);
 
+    //put send preferences in appropriate structure
     $user_preferences['preferences'] = [];
-
     foreach ($names as $preference){
-      if ($preferences[$preference . '_|_display'] == 'n'){
+      if (!isset($properties_shown[$preference])){
         $preferences = array_filter($preferences, function ($key) use ($preference){
           if (preg_match("@{$preference}_@", $key)){
             return FALSE;
@@ -149,12 +161,26 @@ class PreferenceForm extends FormBase {
 
     }
 
+    //add properties if them was removed from setting list
+    $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
+    $initial_preferences = $tempstore->get('initial_preferences');
+    foreach ($properties_shown as $shown_property){
+      if (!in_array($shown_property, $names)){
+        $user_preferences['preferences'][$shown_property] = $initial_preferences[$shown_property];
+        $user_preferences['preferences'][$shown_property]['weight'] = 0;
+      }
+    }
+
+    //send preferences from submitted form to UPSS
     $upss = \Drupal::service('upss.upss');
     $response = $upss->sendPreferences($user_preferences);
 
-    $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
-    $tempstore->set('preferences', $response['preferences']);
-    $tempstore->set('objects', $response['objects']);
+    //save sent preferences and received objects sequence in storage
+    if ($response){
+      $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
+      $tempstore->set('preferences', $response['preferences']);
+      $tempstore->set('objects', $response['objects']);
+    }
 
     return $form_state->setRedirect('upss.preferences');
 

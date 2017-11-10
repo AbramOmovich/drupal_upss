@@ -2,7 +2,6 @@
 
 namespace Drupal\upss\Form;
 
-use Drupal\Console\Bootstrap\Drupal;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -81,10 +80,11 @@ class UpssFileUploadForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $link = '';
-    $file = array_values( $form['input_file']['#files'])[0];
-    if (is_null($file)){
+
+    if (empty($form['input_file']['#files'])){
       $link = $form_state->getValue('input_link');
     }else {
+      $file = array_values( $form['input_file']['#files'])[0];
       $link = $file->getFileUri();
     }
 
@@ -98,7 +98,20 @@ class UpssFileUploadForm extends FormBase {
         $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
         $tempstore->set('preferences', $response);
 
+        $initial_preferences = array_keys($response['preferences']);
+        foreach ($initial_preferences as $index => $init_preference){
+          $initial_preferences[$init_preference] = $init_preference;
+          unset($initial_preferences[$index]);
+        }
+
+        $tempstore->set('initial_preferences_names', $initial_preferences);
+        $tempstore->set('initial_preferences', $response['preferences']);
+        $tempstore->delete('objects');
+
         return $form_state->setRedirect('upss.preferences');
+      }
+      else{
+        drupal_set_message($this->t('Input data is invalid'), 'error');
       }
     }
 
