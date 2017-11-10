@@ -32,13 +32,10 @@ class UpssFileUploadForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = array();
 
-    $form['format'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Select format for input data'),
-      '#options' => [
-        'xml' => $this->t('XML'),
-        'json' => $this->t('JSON'),
-      ],
+    $form['annotation'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'h3',
+      '#value' => $this->t('Available types are: json, xml'),
     ];
 
     $form['input_file'] = [
@@ -65,6 +62,13 @@ class UpssFileUploadForm extends FormBase {
   }
 
   public function validateForm(array &$form, FormStateInterface $form_state){
+      $values = $form_state->getValues();
+      if (empty($values['input_file'])){
+          if (empty($values['input_link'])){
+              $form_state->setError($form['input_file'], $this->t('File has not been uploaded or link provided'));
+          }
+      }
+      $i = 0;
   }
 
   /**
@@ -76,15 +80,20 @@ class UpssFileUploadForm extends FormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $link = '';
     $file = array_values( $form['input_file']['#files'])[0];
+    if (is_null($file)){
+      $link = $form_state->getValue('input_link');
+    }else {
+      $link = $file->getFileUri();
+    }
 
-    $data = file_get_contents($file->getFileUri());
+    $data = file_get_contents($link);
 
     if ($data){
       $upss = \Drupal::service('upss.upss');
-      $response = $upss->sendData($data, $form_state->getValue('format'));
+      $response = $upss->sendData($data);
       if ($response){
-        $response = json_decode($response, TRUE);
 
         $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
         $tempstore->set('preferences', $response);
