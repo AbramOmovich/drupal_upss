@@ -180,6 +180,8 @@ class PreferenceForm extends FormBase {
       $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
       $tempstore->set('preferences', $response['preferences']);
       $tempstore->set('objects', $response['objects']);
+    }else {
+      drupal_set_message($this->t('Error occurred. Please try again later'), 'error');
     }
 
     return $form_state->setRedirect('upss.preferences');
