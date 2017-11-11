@@ -96,7 +96,7 @@ class UpssFileUploadForm extends FormBase {
       if ($response){
 
         $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
-        $tempstore->set('preferences', $response);
+        $tempstore->set('response', $response);
 
         $initial_preferences = array_keys($response['preferences']);
         foreach ($initial_preferences as $index => $init_preference){
@@ -106,7 +106,6 @@ class UpssFileUploadForm extends FormBase {
 
         $tempstore->set('initial_preferences_names', $initial_preferences);
         $tempstore->set('initial_preferences', $response['preferences']);
-        $tempstore->delete('objects');
 
         return $form_state->setRedirect('upss.preferences');
       }

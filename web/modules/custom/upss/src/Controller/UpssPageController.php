@@ -8,20 +8,34 @@ use Drupal\upss\Form\PreferenceForm;
 class UpssPageController extends ControllerBase {
 
   public function set_preferences(){
-
     $output = ['#markup' => ''];
 
+    $page = pager_find_page();
+
     $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
-    $preferences = $tempstore->get('preferences');
+    $response = $tempstore->get('response');
+    //if page changed
+    if (isset($response['page']) && $response['page'] != $page){
+      $upss = \Drupal::service('upss.upss');
+      $preferences['page'] = $page;
+      $preferences['preferences'] = $response['preferences'];
+      $preferences['entities_id'] = $response['entities_id'];
+      $response = $upss->sendPreferences($preferences);
+    }
+    $preferences = $response['preferences'];
 
     $initial_preferences = $tempstore->get('initial_preferences_names');
-    if (isset($preferences['preferences'])){
-      $form = \Drupal::formBuilder()->getForm(PreferenceForm::class, $preferences, $initial_preferences);
+    if (isset($response['preferences'])){
+      $form = \Drupal::formBuilder()->getForm(PreferenceForm::class, $response, $initial_preferences);
       $output ['form']= $form;
     }
 
-    $objects = $tempstore->get('objects');
-    if (isset($objects)){
+
+    if (isset($response['objects'])){
+      $objects = $response['objects'];
+
+      $output[] = [ '#type' => 'pager' ];
+      pager_default_initialize($response['total'], $response['per_page']);
 
       $output[] = [
         '#type' => 'html_tag',
@@ -46,12 +60,14 @@ class UpssPageController extends ControllerBase {
         foreach ($properties as $property => $value){
           if (is_array($value) && !empty($value)){
             $output['list']['#items'][$object]['#rows'][] = [
-              ['width' => '20%', 'data' => $property, 'rowspan' => count($value)], array_shift($value)
+              [
+                'width' => '20%', 'data' => $property, 'rowspan' => count($value),
+              ], array_keys($value)[0] . ' | ' . array_shift($value)
             ];
 
-            foreach ($value as $sub_value){
+            foreach ($value as $sub_property => $sub_value){
               $output['list']['#items'][$object]['#rows'][] = [
-                $sub_value
+                $sub_property . ' | ' . $sub_value
               ];
             }
 
@@ -61,9 +77,9 @@ class UpssPageController extends ControllerBase {
             ];
           }
         }
-
       }
 
+      $output[] = [ '#type' => 'pager' ];
 
     }
 

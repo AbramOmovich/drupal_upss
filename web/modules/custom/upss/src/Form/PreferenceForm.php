@@ -52,6 +52,16 @@ class PreferenceForm extends FormBase {
       '#value' => $preferences['entities_id'],
     ];
 
+    $range_suffix = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => 'Less ===> More'
+    ];
+
+    $renderer = \Drupal::service('renderer');
+    $range_suffix = $renderer->render($range_suffix);
+
+
     $preference_names = [];
     foreach ($preferences['preferences'] as $preference => $settings){
 
@@ -67,7 +77,8 @@ class PreferenceForm extends FormBase {
         '#default_value' => $settings['weight'],
         '#min' => 0,
         '#max' => 1,
-        '#step' => 0.1,
+        '#step' => 0.05,
+        '#suffix' => $range_suffix,
       ];
 
       if (isset($settings['direction'])){
@@ -165,11 +176,12 @@ class PreferenceForm extends FormBase {
     $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
     $initial_preferences = $tempstore->get('initial_preferences');
     foreach ($properties_shown as $shown_property){
-      if (!in_array($shown_property, $names)){
+      if (!in_array($shown_property, $names)) {
         $user_preferences['preferences'][$shown_property] = $initial_preferences[$shown_property];
         $user_preferences['preferences'][$shown_property]['weight'] = 0;
       }
     }
+
 
     //send preferences from submitted form to UPSS
     $upss = \Drupal::service('upss.upss');
@@ -178,8 +190,7 @@ class PreferenceForm extends FormBase {
     //save sent preferences and received objects sequence in storage
     if ($response){
       $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
-      $tempstore->set('preferences', $response['preferences']);
-      $tempstore->set('objects', $response['objects']);
+      $tempstore->set('response', $response);
     }else {
       drupal_set_message($this->t('Error occurred. Please try again later'), 'error');
     }
