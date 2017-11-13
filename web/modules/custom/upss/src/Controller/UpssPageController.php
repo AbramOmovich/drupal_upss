@@ -2,19 +2,22 @@
 
 namespace Drupal\upss\Controller;
 
+use Drupal\Console\Bootstrap\Drupal;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\upss\Form\PreferenceForm;
+use Drupal\upss\Form\SendToUpssForm;
 
 class UpssPageController extends ControllerBase {
 
   public function set_preferences(){
     $output = ['#markup' => ''];
 
-    $page = pager_find_page();
-
+    //get last results
     $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
     $response = $tempstore->get('response');
-    //if page changed
+
+    //if page changed we need to resend preferences
+    $page = pager_find_page();
     if (isset($response['page']) && $response['page'] != $page){
       $upss = \Drupal::service('upss.upss');
       $preferences['page'] = $page;
@@ -22,15 +25,15 @@ class UpssPageController extends ControllerBase {
       $preferences['entities_id'] = $response['entities_id'];
       $response = $upss->sendPreferences($preferences);
     }
-    $preferences = $response['preferences'];
 
+    //build preferences form
     $initial_preferences = $tempstore->get('initial_preferences_names');
     if (isset($response['preferences'])){
       $form = \Drupal::formBuilder()->getForm(PreferenceForm::class, $response, $initial_preferences);
       $output ['form']= $form;
     }
 
-
+    //draw table with objects
     if (isset($response['objects'])){
       $objects = $response['objects'];
 
@@ -88,8 +91,10 @@ class UpssPageController extends ControllerBase {
 
   public function onliner(){
     $phoneCatalog = \Drupal::service('upss.phone_catalog');
+    $renderer = \Drupal::service('renderer');
 
     $output = [];
+    $output['-1'] = \Drupal::formBuilder()->getForm(SendToUpssForm::class);
     $output[0] = [ '#type' => 'pager' ];
     $output[1] = [
       '#theme' => 'item_list',
@@ -102,29 +107,20 @@ class UpssPageController extends ControllerBase {
     $phones = $phoneCatalog->getPhones($page);
     foreach ($phones as $phone){
       $item = [];
-      $item['#prefix'] = '<div>';
-      $item[] = [
-        '#theme' => 'imagecache_external',
-        '#path' => 'https://www.drupal.org/files/druplicon.png',
+      $image = [
+        '#theme' => 'image_style',
+        '#uri' => $phone['image'],
         '#style_name' => 'thumbnail',
-        '#alt' => 'Druplicon',
-        //'#path' => 'http:' .  $phone['images']['header'],
-      ];
-      $item[] = [
-        '#type' => 'html_tag',
-        '#tag' => 'strong',
-        '#value' => $phone['name'],
-      ];
-      $item[] = [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#value' => $phone['description'],
+        '#alt' => $phone['name'],
       ];
 
-      $item['#suffix'] = '</div>';
+      $item[] = [
+        '#theme' => 'phone',
+        '#phone' => $phone,
+        '#image' => $renderer->render($image)
+      ];
 
       $output[1]['#items'] []= $item;
-
     }
 
     $output[] = [ '#type' => 'pager' ];

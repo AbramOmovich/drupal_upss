@@ -1,0 +1,6 @@
+upss.catalog:
+  version: VERSION
+  css:
+    theme:
+      css/upss.css: {}
+
