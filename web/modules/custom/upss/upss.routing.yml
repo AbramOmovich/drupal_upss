@@ -20,3 +20,9 @@ upss.onliner:
     _title: 'Onliner mobile catalog'
   requirements:
     _permission: 'access content'
+upss.phone:
+  path: '/upss/onliner/{id}'
+  defaults:
+    _controller: '\Drupal\upss\Controller\UpssPageController::phone_page'
+  requirements:
+    _permission: 'access content'

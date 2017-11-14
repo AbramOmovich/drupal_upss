@@ -4,8 +4,10 @@ namespace Drupal\upss\Controller;
 
 use Drupal\Console\Bootstrap\Drupal;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Drupal\upss\Form\PreferenceForm;
 use Drupal\upss\Form\SendToUpssForm;
+use Symfony\Component\HttpFoundation\Request;
 
 class UpssPageController extends ControllerBase {
 
@@ -114,6 +116,7 @@ class UpssPageController extends ControllerBase {
         '#alt' => $phone['name'],
       ];
 
+      $phone['url'] = Url::fromRoute('upss.phone', ['id' => $phone['id'] ]);
       $item[] = [
         '#theme' => 'phone',
         '#phone' => $phone,
@@ -125,5 +128,9 @@ class UpssPageController extends ControllerBase {
 
     $output[] = [ '#type' => 'pager' ];
     return $output;
+  }
+
+  public function phone_page(Request $request){
+    return ['#markup' => 'phone '] ;
   }
 }

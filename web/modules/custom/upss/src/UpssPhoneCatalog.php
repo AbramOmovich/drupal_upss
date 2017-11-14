@@ -52,6 +52,18 @@ class UpssPhoneCatalog {
     return $amount;
   }
 
+  public function getPhoneById(int $id){
+    $file = self::FOLDER . $id . '.ser';
+    $phone = NULL;
+
+    if (file_exists($file)){
+      $phone = file_get_contents($file);
+      $phone = unserialize($phone);
+    }
+
+    return $phone;
+  }
+
   private function getPhoneImageUrl(array $phone): string
   {
     return self::IMG_DIR . $phone['id'] . '.' . pathinfo($phone['images']['header'], PATHINFO_EXTENSION);
