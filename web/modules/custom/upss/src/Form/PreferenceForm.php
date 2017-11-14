@@ -55,7 +55,7 @@ class PreferenceForm extends FormBase {
     $range_suffix = [
       '#type' => 'html_tag',
       '#tag' => 'div',
-      '#value' => 'Less ===> More'
+      '#value' => 'Less ======> More'
     ];
 
     $renderer = \Drupal::service('renderer');
@@ -139,7 +139,7 @@ class PreferenceForm extends FormBase {
 
     //leave only settings in form input
     $preferences = array_filter($preferences, function ($element){
-      if (preg_match('@_\|_@', $element)){
+      if (preg_match('@_|_@u', $element)){
         return TRUE;
       }else {
         return FALSE;
@@ -177,6 +177,7 @@ class PreferenceForm extends FormBase {
     $initial_preferences = $tempstore->get('initial_preferences');
     foreach ($properties_shown as $shown_property){
       if (!in_array($shown_property, $names)) {
+
         $user_preferences['preferences'][$shown_property] = $initial_preferences[$shown_property];
         $user_preferences['preferences'][$shown_property]['weight'] = 0;
       }

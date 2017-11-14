@@ -77,18 +77,23 @@ class UpssFileUploadForm extends FormBase {
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
+   * @param array|null $data
+   *
+   * @return FormStateInterface
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state, array $data = NULL) {
     $link = '';
 
-    if (empty($form['input_file']['#files'])){
-      $link = $form_state->getValue('input_link');
-    }else {
-      $file = array_values( $form['input_file']['#files'])[0];
-      $link = $file->getFileUri();
-    }
+    if (is_null($data)){
+      if (empty($form['input_file']['#files'])){
+        $link = $form_state->getValue('input_link');
+      }else {
+        $file = array_values( $form['input_file']['#files'])[0];
+        $link = $file->getFileUri();
+      }
 
-    $data = file_get_contents($link);
+      $data = file_get_contents($link);
+    }
 
     if ($data){
       $upss = \Drupal::service('upss.upss');

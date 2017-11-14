@@ -13,7 +13,6 @@ class UpssPageController extends ControllerBase {
 
   public function set_preferences(){
     $output = ['#markup' => ''];
-
     //get last results
     $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
     $response = $tempstore->get('response');
@@ -38,10 +37,8 @@ class UpssPageController extends ControllerBase {
     //draw table with objects
     if (isset($response['objects'])){
       $objects = $response['objects'];
-
       $output[] = [ '#type' => 'pager' ];
       pager_default_initialize($response['total'], $response['per_page']);
-
       $output[] = [
         '#type' => 'html_tag',
         '#tag' => 'hr',
@@ -51,7 +48,6 @@ class UpssPageController extends ControllerBase {
         '#list_type' => 'ul',
         '#items' => [],
       ];
-
       foreach ($objects as $object => $properties){
         $output['list']['#items'][$object] = [
           '#type' => 'table',
@@ -61,21 +57,19 @@ class UpssPageController extends ControllerBase {
           ],
           '#rows' => [],
         ];
-
         foreach ($properties as $property => $value){
+
           if (is_array($value) && !empty($value)){
             $output['list']['#items'][$object]['#rows'][] = [
               [
                 'width' => '20%', 'data' => $property, 'rowspan' => count($value),
               ], array_keys($value)[0] . ' | ' . array_shift($value)
             ];
-
             foreach ($value as $sub_property => $sub_value){
               $output['list']['#items'][$object]['#rows'][] = [
                 $sub_property . ' | ' . $sub_value
               ];
             }
-
           } else{
             $output['list']['#items'][$object]['#rows'][] = [
               [ 'width' => '20%', 'data' => $property], $value
@@ -83,8 +77,8 @@ class UpssPageController extends ControllerBase {
           }
         }
       }
-
       $output[] = [ '#type' => 'pager' ];
+
 
     }
 
