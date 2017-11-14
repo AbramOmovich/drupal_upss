@@ -8,5 +8,12 @@ function upss_theme($existing, $type, $theme, $path) {
         'image' => NULL,
       ],
     ],
+    'phone_desc' => [
+      'variables' => [
+        'phone' => NULL,
+        'image' => NULL,
+        'table' => NULL,
+      ],
+    ],
   ];
 }

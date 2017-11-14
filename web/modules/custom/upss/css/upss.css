@@ -2,7 +2,7 @@
   border: solid 1px #d8d8d8;
   border-radius: 5px;
   width: 100%;
-  height: 130px;
+  min-height: 130px;
 }
 
 .phone-image{
@@ -21,5 +21,27 @@
 }
 
 .phone-link{
+  !important; border-bottom: none;
   !important; text-decoration: none;
+}
+
+.phone-wide{
+  min-height: 250px;
+}
+
+.phone-wide-description {
+  padding-left: 10px;
+  padding-top: 10px;
+  width: 70%;
+  height: 120px;
+  display: inline-block;
+
+}
+.phone-wide-description h2{
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+.phone-table{
+  margin-top: 150px;
+  font-size: medium;
 }

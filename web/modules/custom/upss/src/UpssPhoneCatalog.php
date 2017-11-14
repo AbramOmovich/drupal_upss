@@ -59,6 +59,8 @@ class UpssPhoneCatalog {
     if (file_exists($file)){
       $phone = file_get_contents($file);
       $phone = unserialize($phone);
+      $phone['image'] = $this->getPhoneImageUrl($phone);
+      unset($phone['images']);
     }
 
     return $phone;

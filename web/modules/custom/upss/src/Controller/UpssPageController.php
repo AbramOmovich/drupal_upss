@@ -130,7 +130,46 @@ class UpssPageController extends ControllerBase {
     return $output;
   }
 
-  public function phone_page(Request $request){
-    return ['#markup' => 'phone '] ;
+  public function phone_page($id){
+    $output = ['#markup' => ''];
+
+    $phoneCatalog = \Drupal::service('upss.phone_catalog');
+    $phone = $phoneCatalog->getPhoneById($id);
+
+    if ($phone){
+      $renderer = \Drupal::service('renderer');
+      $image = [
+        '#theme' => 'image_style',
+        '#uri' => $phone['image'],
+        '#style_name' => 'medium',
+        '#alt' => $phone['name'],
+      ];
+
+
+      $table = [
+        '#type' => 'table',
+        '#header' => [
+          $this->t('Phone property'),
+          $this->t('Phone value')
+        ],
+        '#rows' => [],
+      ];
+
+      foreach ($phone['properties'] as $property => $value){
+        $table['#rows'][] = [
+            [ 'width' => '30%', 'data' => $property], htmlspecialchars_decode($value)
+        ];
+      }
+
+      $output = [
+        '#theme' => 'phone_desc',
+        '#phone' => $phone,
+        '#image' => $renderer->render($image),
+        '#table' => $renderer->render($table),
+      ];
+
+    }
+
+    return $output;
   }
 }
