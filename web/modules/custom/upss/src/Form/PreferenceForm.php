@@ -196,8 +196,6 @@ class PreferenceForm extends FormBase {
       drupal_set_message($this->t('Error occurred. Please try again later'), 'error');
     }
 
-    return $form_state->setRedirect('upss.preferences');
-
   }
 
 }

@@ -86,21 +86,55 @@ class UpssPageController extends ControllerBase {
   }
 
   public function onliner(){
+    $output = [];
+    $phones = NULL;
+    $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
     $phoneCatalog = \Drupal::service('upss.phone_catalog');
     $renderer = \Drupal::service('renderer');
+    $page = pager_find_page();
+    pager_default_initialize($phoneCatalog->getNumberOfPhones(), $phoneCatalog::PAGE_LIMIT);
 
-    $output = [];
-    $output['-1'] = \Drupal::formBuilder()->getForm(SendToUpssForm::class);
+    $response = $tempstore->get('response');
+
+    if ($response){
+      $output['-1'] = \Drupal::formBuilder()->getForm(SendToUpssForm::class, TRUE);
+
+      //if page changed we need to resend preferences
+      if (isset($response['page']) && $response['page'] != $page){
+        $upss = \Drupal::service('upss.upss');
+        $preferences['page'] = $page;
+        $preferences['preferences'] = $response['preferences'];
+        $preferences['entities_id'] = $response['entities_id'];
+        $response = $upss->sendPreferences($preferences);
+      }
+
+      //build preferences form
+      $initial_preferences = $tempstore->get('initial_preferences_names');
+      if (isset($response['preferences'])){
+        $form = \Drupal::formBuilder()->getForm(PreferenceForm::class, $response, $initial_preferences);
+        $output ['form']= $form;
+      }
+
+      if (isset($response['objects'])){
+        foreach ($response['objects'] as $object){
+          $phones[] = $phoneCatalog->getPhoneById($object['id']);
+        }
+      }
+    } else {
+      $output['-1'] = \Drupal::formBuilder()->getForm(SendToUpssForm::class);
+    }
+
+    if (is_null($phones)){
+      $phones = $phoneCatalog->getPhones($page);
+    }
+
     $output[0] = [ '#type' => 'pager' ];
     $output[1] = [
       '#theme' => 'item_list',
       '#list_type' => 'ul',
       '#items' => [],
     ];
-    $page = pager_find_page();
-    pager_default_initialize($phoneCatalog->getNumberOfPhones(), $phoneCatalog::PAGE_LIMIT);
 
-    $phones = $phoneCatalog->getPhones($page);
     foreach ($phones as $phone){
       $item = [];
       $image = [
