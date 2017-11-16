@@ -5,7 +5,7 @@ namespace Drupal\upss;
 class UpssService {
   private const UPPS_HOST = 'https://abramomovich.000webhostapp.com/';
 
-  public function sendData(array $data = []){
+  public function sendData($data = NULL){
 
     $curl = curl_init(self::UPPS_HOST);
     curl_setopt($curl, CURLOPT_POST, true);

@@ -100,6 +100,8 @@ class UpssFileUploadForm extends FormBase {
       $response = $upss->sendData($data);
       if ($response){
 
+        $flag_dir = \Drupal::service('user.private_tempstore')->get('flag_dir');
+        $flag_dir->set('flag_dir', 'user_upss_storage');
         $tempstore = \Drupal::service('user.private_tempstore')->get('user_upss_storage');
         $tempstore->set('response', $response);
 

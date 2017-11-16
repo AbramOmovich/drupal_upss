@@ -57,6 +57,8 @@ class SendToUpssForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $operation = $form_state->getValues();
+    $flag_dir = \Drupal::service('user.private_tempstore')->get('flag_dir');
+    $flag_dir->set('flag_dir', 'catalog_upss_storage');
     $tempstore = \Drupal::service('user.private_tempstore')->get('catalog_upss_storage');
 
     if (isset($operation['cancel'])){

@@ -122,6 +122,8 @@ class PreferenceForm extends FormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $flag_dir = \Drupal::service('user.private_tempstore')->get('flag_dir');
+    $tempstore = \Drupal::service('user.private_tempstore')->get($flag_dir->get('flag_dir'));
     $user_preferences = [];
 
     $preferences = $form_state->getUserInput();
@@ -173,7 +175,7 @@ class PreferenceForm extends FormBase {
     }
 
     //add properties if them was removed from setting list
-    $tempstore = \Drupal::service('user.private_tempstore')->get('user_upss_storage');
+
     $initial_preferences = $tempstore->get('initial_preferences');
     foreach ($properties_shown as $shown_property){
       if (!in_array($shown_property, $names)) {
@@ -190,7 +192,6 @@ class PreferenceForm extends FormBase {
 
     //save sent preferences and received objects sequence in storage
     if ($response){
-      $tempstore = \Drupal::service('user.private_tempstore')->get('user_upss_storage');
       $tempstore->set('response', $response);
     }else {
       drupal_set_message($this->t('Error occurred. Please try again later'), 'error');
