@@ -57,7 +57,7 @@ class SendToUpssForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $operation = $form_state->getValues();
-    $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
+    $tempstore = \Drupal::service('user.private_tempstore')->get('catalog_upss_storage');
 
     if (isset($operation['cancel'])){
       $tempstore->delete('response');
@@ -82,7 +82,6 @@ class SendToUpssForm extends FormBase {
           $tempstore->set('initial_preferences_names', $initial_preferences);
           $tempstore->set('initial_preferences', $response['preferences']);
 
-          return $form_state->setRedirect('upss.onliner');
         }else {
           drupal_set_message($this->t('Error sending catalog to UPSS'), 'error');
         }

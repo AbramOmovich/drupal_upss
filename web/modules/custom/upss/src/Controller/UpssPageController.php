@@ -14,7 +14,7 @@ class UpssPageController extends ControllerBase {
   public function set_preferences(){
     $output = ['#markup' => ''];
     //get last results
-    $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
+    $tempstore = \Drupal::service('user.private_tempstore')->get('user_upss_storage');
     $response = $tempstore->get('response');
 
     //if page changed we need to resend preferences
@@ -88,7 +88,7 @@ class UpssPageController extends ControllerBase {
   public function onliner(){
     $output = [];
     $phones = NULL;
-    $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
+    $tempstore = \Drupal::service('user.private_tempstore')->get('catalog_upss_storage');
     $phoneCatalog = \Drupal::service('upss.phone_catalog');
     $renderer = \Drupal::service('renderer');
     $page = pager_find_page();

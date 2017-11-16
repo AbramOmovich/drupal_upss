@@ -100,7 +100,7 @@ class UpssFileUploadForm extends FormBase {
       $response = $upss->sendData($data);
       if ($response){
 
-        $tempstore = \Drupal::service('user.private_tempstore')->get('upss_storage');
+        $tempstore = \Drupal::service('user.private_tempstore')->get('user_upss_storage');
         $tempstore->set('response', $response);
 
         $initial_preferences = array_keys($response['preferences']);

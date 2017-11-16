@@ -5,13 +5,13 @@ namespace Drupal\upss;
 class UpssService {
   private const UPPS_HOST = 'https://abramomovich.000webhostapp.com/';
 
-  public function sendData($data){
+  public function sendData(array $data = []){
 
     $curl = curl_init(self::UPPS_HOST);
     curl_setopt($curl, CURLOPT_POST, true);
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query(
       [
-        'data' => $data,
+        'data' => serialize($data),
       ]
     ));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -21,6 +21,7 @@ class UpssService {
     if ($response){
       $response = json_decode($response, TRUE);
     }
+
 
     return $response;
   }
